@@ -21,7 +21,16 @@ task generate_rbs_for_model: :environment do
 
   Rails.application.eager_load!
 
-  ActiveRecord::Base.descendants.each do |klass|
+  reject_classes = [
+    ActionText::RichText,
+    ActionMailbox::InboundEmail,
+    ActiveStorage::Blob,
+    ActiveStorage::Attachment
+  ]
+
+  tables = ActiveRecord::Base.descendants - reject_classes
+    
+  tables.each do |klass|
     next if klass.abstract_class?
 
     path = out_dir / "app/models/#{klass.name.underscore}.rbs"
